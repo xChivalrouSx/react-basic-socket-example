@@ -1,39 +1,77 @@
-import { init, send, subscribeNewMessage } from './utils/SocketApi';
-import { useEffect, useState, useRef } from 'react';
-import ChatContent from './components/ChatContent'
+import { useEffect, useRef, useState } from "react";
+import ChatContent from "./components/ChatContent";
+import { init, send, subscribeNewMessage } from "./utils/SocketApi";
 
 function App() {
-  const[messages, setMessages] = useState([]);
-  const[message, setMessage] = useState("");
-  const messageRef = useRef();
+	const [messages, setMessages] = useState([]);
+	const [message, setMessage] = useState("");
+	const messageRef = useRef();
 
-  useEffect(() => {
-    init((messageList) => setMessages(messageList));
-    subscribeNewMessage(message => setMessages((oldState) => [...oldState, message]));
-  }, []);
+	useEffect(() => {
+		init((messageList) => {
+			setMessages(messageList);
+			scrollToBottom();
+		});
 
-  const sendMessage = () => {
-      send(message);
-      setMessage("");
-  }
+		subscribeNewMessage((message) => {
+			setMessages((oldState) => [...oldState, message]);
+			scrollToBottom();
+		});
+	}, []);
 
-  const inputKeyDown = (e) => {
-      if (e.keyCode === 13) {
-          sendMessage();
-      }
-  }
+	const sendMessage = () => {
+		send(message);
+		setMessage("");
+	};
 
-  return (
-    <div>
-      <h2>Chat App</h2>
-      <hr />
-      <input value={message} onKeyDown={inputKeyDown} onChange={(e) => setMessage(e.target.value)} />
-      <button onClick={sendMessage}>Send</button>
-      <div style={{ marginTop: "10px", width: "100%", height: "80vh", border: "solid 1px", overflowY: "scroll" }}>
-        <ChatContent messageList={messages} />
-      </div>
-    </div>
-  );
+	const inputKeyDown = (e) => {
+		if (e.keyCode === 13) {
+			sendMessage();
+		}
+	};
+
+	const scrollToBottom = () => {
+		messageRef.current?.scrollIntoView({
+			behavior: "smooth",
+		});
+	};
+
+	return (
+		<div className="container">
+			<div className="row text-center m-3">
+				<h2>Chat App</h2>
+			</div>
+			<div className="row">
+				<div
+					style={{
+						marginTop: "10px",
+						width: "100%",
+						height: "80vh",
+						border: "solid 1px",
+						overflowY: "scroll",
+					}}
+				>
+					<ChatContent messageList={messages} />
+					<div ref={messageRef} />
+				</div>
+			</div>
+			<div className="row">
+				<div className="col-10 p-0">
+					<input
+						className="form-control w-100"
+						value={message}
+						onKeyDown={inputKeyDown}
+						onChange={(e) => setMessage(e.target.value)}
+					/>
+				</div>
+				<div className="col-2 text-end p-0">
+					<button className="btn btn-primary w-100" onClick={sendMessage}>
+						Send
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export default App;
