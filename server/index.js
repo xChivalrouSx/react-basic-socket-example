@@ -5,18 +5,18 @@ const cors = require("cors");
 
 app.use(cors());
 
-var messageList = ["hello"];
+var messageList = [{ username: "System Message", message: "hello" }];
 
 io.on("connection", (socket) => {
 	console.log("New user here.");
 
 	socket.emit("newUser", messageList);
 
-	socket.on("newMessage", (message) => {
-		console.log(message);
+	socket.on("newMessage", (messageInfo) => {
+		console.log(messageInfo);
 
-		messageList.push(message);
-		io.emit("receive", message);
+		messageList.push(messageInfo);
+		io.emit("receive", messageInfo);
 	});
 
 	socket.on("disconnect", () => {

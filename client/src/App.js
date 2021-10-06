@@ -3,9 +3,14 @@ import ChatContent from "./components/ChatContent";
 import { init, send, subscribeNewMessage } from "./utils/SocketApi";
 
 function App() {
+	const [username] = useState("user-" + generateRandomNumber());
 	const [messages, setMessages] = useState([]);
 	const [message, setMessage] = useState("");
 	const messageRef = useRef();
+
+	function generateRandomNumber() {
+		return Math.floor(Math.random() * (100000 + 1) + 0);
+	}
 
 	useEffect(() => {
 		init((messageList) => {
@@ -13,14 +18,14 @@ function App() {
 			scrollToBottom();
 		});
 
-		subscribeNewMessage((message) => {
-			setMessages((oldState) => [...oldState, message]);
+		subscribeNewMessage((msg) => {
+			setMessages((oldState) => [...oldState, msg]);
 			scrollToBottom();
 		});
 	}, []);
 
 	const sendMessage = () => {
-		send(message);
+		send(message, username);
 		setMessage("");
 	};
 
@@ -42,7 +47,12 @@ function App() {
 				<h2>Chat App</h2>
 			</div>
 			<div className="row">
+				<div className="col-10 text-end pt-2">Username:</div>
+				<div className="col-2 text-primary pt-2">{username}</div>
+			</div>
+			<div className="row">
 				<div
+					className="col-12"
 					style={{
 						marginTop: "10px",
 						width: "100%",
@@ -51,7 +61,7 @@ function App() {
 						overflowY: "scroll",
 					}}
 				>
-					<ChatContent messageList={messages} />
+					<ChatContent messageList={messages} username={username} />
 					<div ref={messageRef} />
 				</div>
 			</div>
@@ -64,7 +74,7 @@ function App() {
 						onChange={(e) => setMessage(e.target.value)}
 					/>
 				</div>
-				<div className="col-2 text-end p-0">
+				<div className="col-2 p-0">
 					<button className="btn btn-primary w-100" onClick={sendMessage}>
 						Send
 					</button>

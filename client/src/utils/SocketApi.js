@@ -14,12 +14,12 @@ export const init = (callBack) => {
 	});
 };
 
-export const send = (message) => {
-	socket.emit("newMessage", message);
+export const send = (msg, usr) => {
+	socket.emit("newMessage", { message: msg, username: usr });
 };
 
 export const subscribeNewMessage = (callBack) => {
-	socket.on("receive", (message) => {
-		callBack(message);
+	socket.on("receive", (messageInfo) => {
+		callBack(messageInfo);
 	});
 };
